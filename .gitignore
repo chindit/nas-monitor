@@ -6,4 +6,14 @@ artifacts/
 *.user
 *.suo
 nas-monitor.env
-appsettings.Production.json
+.env
+.env.*
+*.env
+*.env.*
+!*.env.example
+appsettings.*.json
+secrets.json
+*.pem
+*.key
+*.p12
+*.pfx
