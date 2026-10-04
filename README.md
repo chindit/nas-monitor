@@ -36,6 +36,8 @@ Edit `/etc/nas-monitor/nas-monitor.json` after installation. The main settings a
 
 Do not add the ZFS pool to `Storage.MountPoints`. Its capacity comes from `zpool list` and appears in the **Storage** card when the ZFS module is enabled. These figures describe the entire pool, not usage per member disk.
 
+With `Modules:Smart:WakeSleepingDisks` set to `false`, a disk that is actually in standby is shown as **Standby** without live SMART metrics. Set it to `true` only if you want each refresh to wake sleeping disks to read those metrics.
+
 Put Plex and Jellyfin API tokens in `/etc/nas-monitor/nas-monitor.env`, replacing `replace-me` for enabled modules. Keep this file owned by `root` and accessible only to `root` (`0600`). Do not put real tokens in the repository or the example JSON file.
 
 ## Deploy a version

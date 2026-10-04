@@ -51,8 +51,21 @@ public sealed class SmartNormalizerTests
     [Fact]
     public void DetectsSleepingDisk()
     {
-        const string json = """{"device":{"name":"/dev/sda","protocol":"ATA"},"messages":[{"string":"Device is in STANDBY mode"}]}""";
-        Assert.True(SmartNormalizer.Normalize(new DiscoveredDevice("/dev/sda", "ATA"), json, 2).IsInStandby);
+        const string json = """{"smartctl":{"argv":["smartctl","--all","--json=c","--nocheck=standby,0","/dev/sda"],"messages":[{"string":"Device is in STANDBY mode, exit(0)","severity":"info"}]},"device":{"name":"/dev/sda","protocol":"ATA"}}""";
+        Assert.True(SmartNormalizer.Normalize(new DiscoveredDevice("/dev/sda", "ATA"), json, 0).IsInStandby);
+    }
+
+    [Fact]
+    public void StandbyOptionDoesNotHideActiveDiskMetrics()
+    {
+        const string json = """{"smartctl":{"argv":["smartctl","--all","--json=c","--nocheck=standby,0","/dev/sda"]},"device":{"name":"/dev/sda","protocol":"ATA"},"model_name":"Disk","rotation_rate":7200,"smart_status":{"passed":true},"temperature":{"current":35},"power_on_time":{"hours":1234}}""";
+        var device = SmartNormalizer.Normalize(new DiscoveredDevice("/dev/sda", "ATA"), json, 0);
+        Assert.False(device.IsInStandby);
+        Assert.Equal("Disk", device.Model);
+        Assert.Equal(StorageDeviceKind.Hdd, device.Kind);
+        Assert.True(device.SmartPassed);
+        Assert.Equal(35m, device.TemperatureCelsius);
+        Assert.Equal(1234, device.PowerOnHours);
     }
 
     [Fact]

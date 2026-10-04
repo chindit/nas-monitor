@@ -183,9 +183,31 @@ internal static class SmartNormalizer
                protocol.Equals("nvme", StringComparison.OrdinalIgnoreCase);
     }
 
-    public static bool IsStandby(string standardOutput, string standardError) =>
-        standardOutput.Contains("STANDBY", StringComparison.OrdinalIgnoreCase) ||
-        standardError.Contains("STANDBY", StringComparison.OrdinalIgnoreCase);
+    public static bool IsStandby(string standardOutput, string standardError)
+    {
+        if (HasStandbyMessage(standardError))
+        {
+            return true;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(standardOutput);
+            var smartctl = Object(document.RootElement, "smartctl");
+            if (smartctl.ValueKind != JsonValueKind.Object ||
+                !smartctl.TryGetProperty("messages", out var messages) ||
+                messages.ValueKind != JsonValueKind.Array)
+            {
+                return false;
+            }
+
+            return messages.EnumerateArray().Any(message => HasStandbyMessage(String(message, "string")));
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
 
     public static SmartDeviceSnapshot FailedDevice(DiscoveredDevice device, string message) =>
         new(device.Path, device.Protocol, StorageDeviceKind.Unknown, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, [message]);
@@ -269,6 +291,11 @@ internal static class SmartNormalizer
         if ((exitCode & 0b1000_0000) != 0) messages.Add("The SMART self-test log contains recent errors.");
         return messages;
     }
+
+    private static bool HasStandbyMessage(string? text) =>
+        text is not null && text.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(line => line.StartsWith("Device is in STANDBY", StringComparison.OrdinalIgnoreCase) ||
+                         line.StartsWith("Device is in SLEEP", StringComparison.OrdinalIgnoreCase));
 
     private static JsonElement Object(JsonElement element, string name) => element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Object ? value : default;
     private static string? String(JsonElement element, string name) => element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
