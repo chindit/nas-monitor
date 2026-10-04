@@ -1,0 +1,11 @@
+@if (Error is not null)
+{
+    <div class="error-panel" role="alert">
+        <strong>@Error.Code</strong>
+        <span>@Error.Message</span>
+    </div>
+}
+
+@code {
+    [Parameter] public ModuleError? Error { get; set; }
+}

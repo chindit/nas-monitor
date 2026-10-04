@@ -1,0 +1,33 @@
+@using NasMonitor.Contracts.System
+
+<ModuleCard Title="System" State="Result.State" CssClass="grid-system">
+    <ErrorPanel Error="Result.Error" />
+    @if (Result.Data is { } data)
+    {
+        <dl class="metrics">
+            <div><dt>Host</dt><dd>@data.HostName</dd></div>
+            <div><dt>Uptime</dt><dd>@DurationFormatter.FormatLong(data.UptimeSeconds)</dd></div>
+            <div><dt>CPU</dt><dd>@FormatPercent(data.CpuUsagePercent)</dd></div>
+            <div><dt>Memory</dt><dd>@FormatPercent(data.MemoryUsagePercent) · @BinarySizeFormatter.Format(data.MemoryUsedBytes) / @BinarySizeFormatter.Format(data.MemoryTotalBytes)</dd></div>
+            <div><dt>Load</dt><dd>@data.LoadAverage1Minute.ToString("0.##") / @data.LoadAverage5Minutes.ToString("0.##") / @data.LoadAverage15Minutes.ToString("0.##")</dd></div>
+        </dl>
+        @if (data.Temperatures.Count > 0)
+        {
+            <div class="table-scroll"><table><thead><tr><th>Sensor</th><th>Temperature</th></tr></thead><tbody>
+                @foreach (var temperature in data.Temperatures)
+                {
+                    <tr><td>@temperature.Label <span class="muted">@temperature.Source</span></td><td>@temperature.Celsius.ToString("0.0") °C</td></tr>
+                }
+            </tbody></table></div>
+        }
+        @foreach (var warning in data.Warnings)
+        {
+            <p class="inline-warning">@warning.Message</p>
+        }
+    }
+</ModuleCard>
+
+@code {
+    [Parameter, EditorRequired] public ModuleResult<SystemSnapshot> Result { get; set; } = default!;
+    private static string FormatPercent(decimal value) => $"{value:0.#}%";
+}

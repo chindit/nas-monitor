@@ -1,0 +1,37 @@
+@using NasMonitor.Contracts.Media
+
+<ModuleCard Title="@Title" State="Result.State" CssClass="@CssClass">
+    <ErrorPanel Error="Result.Error" />
+    @if (Result.Data is { } data)
+    {
+        <dl class="metrics">
+            <div><dt>Server</dt><dd>@(data.ServerName ?? "—")</dd></div>
+            <div><dt>Version</dt><dd>@(data.Version ?? "—")</dd></div>
+            <div><dt>Service</dt><dd>@data.Service.ActiveState / @data.Service.SubState</dd></div>
+            <div><dt>Sessions</dt><dd>@data.Sessions.Count</dd></div>
+        </dl>
+        @if (data.Sessions.Count > 0)
+        {
+            <div class="session-list">
+            @foreach (var session in data.Sessions)
+            {
+                <article class="session">
+                    <h3>@session.DisplayTitle</h3>
+                    <p>@(session.UserName ?? "Unknown user") · @session.State · @session.Decision</p>
+                    <p class="muted">@(session.DeviceName ?? session.ClientName ?? "Unknown device") · @DurationFormatter.FormatPlayback(session.PositionMilliseconds) / @DurationFormatter.FormatPlayback(session.DurationMilliseconds)</p>
+                    @if (session.ProgressPercent is { } progress)
+                    {
+                        <progress max="100" value="@decimal.Clamp(progress, 0, 100)" aria-label="Playback progress"></progress>
+                    }
+                </article>
+            }
+            </div>
+        }
+    }
+</ModuleCard>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CssClass { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public ModuleResult<MediaServerSnapshot> Result { get; set; } = default!;
+}

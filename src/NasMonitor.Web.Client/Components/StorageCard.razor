@@ -1,0 +1,25 @@
+@using NasMonitor.Contracts.Storage
+@using NasMonitor.Contracts.Zfs
+
+<ModuleCard Title="Storage" State="Result.State" CssClass="grid-storage">
+    <ErrorPanel Error="Result.Error" />
+    @if (Result.Data is { } data)
+    {
+        <div class="table-scroll"><table><thead><tr><th>Mount / pool</th><th>Type</th><th>Used</th><th>Available</th></tr></thead><tbody>
+            @foreach (var mount in data.Mounts)
+            {
+                <tr><td>@mount.MountPoint</td><td>@mount.FileSystemType</td><td>@mount.UsagePercent.ToString("0.#")% · @BinarySizeFormatter.Format(mount.UsedBytes)</td><td>@BinarySizeFormatter.Format(mount.AvailableBytes)</td></tr>
+            }
+            @if (ZfsResult?.Data is { } pool)
+            {
+                <tr><td>@pool.PoolName</td><td>ZFS pool</td><td>@pool.CapacityPercent.ToString("0.#")% · @BinarySizeFormatter.Format(pool.AllocatedBytes)</td><td>@BinarySizeFormatter.Format(pool.FreeBytes)</td></tr>
+            }
+        </tbody></table></div>
+        <p class="muted">@data.PhysicalDevices.Count physical device(s)</p>
+    }
+</ModuleCard>
+
+@code {
+    [Parameter, EditorRequired] public ModuleResult<StorageSnapshot> Result { get; set; } = default!;
+    [Parameter] public ModuleResult<ZfsSnapshot>? ZfsResult { get; set; }
+}

@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NasMonitor.Contracts/NasMonitor.Contracts.csproj" />
+    <Project Path="src/NasMonitor.Core/NasMonitor.Core.csproj" />
+    <Project Path="src/NasMonitor.Modules/NasMonitor.Modules.csproj" />
+    <Project Path="src/NasMonitor.Web.Client/NasMonitor.Web.Client.csproj" />
+    <Project Path="src/NasMonitor.Web/NasMonitor.Web.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/NasMonitor.SmartCollector/NasMonitor.SmartCollector.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ProcessFixture/ProcessFixture.csproj" />
+    <Project Path="tests/NasMonitor.Core.Tests/NasMonitor.Core.Tests.csproj" />
+    <Project Path="tests/NasMonitor.Modules.Tests/NasMonitor.Modules.Tests.csproj" />
+    <Project Path="tests/NasMonitor.SmartCollector.Tests/NasMonitor.SmartCollector.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,7 @@
+<span class="state-badge state-@CssClass" role="status" aria-label="Module state: @State">@State</span>
+
+@code {
+    [Parameter, EditorRequired] public ModuleState State { get; set; }
+
+    private string CssClass => State.ToString().ToLowerInvariant();
+}

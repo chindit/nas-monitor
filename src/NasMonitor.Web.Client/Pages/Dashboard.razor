@@ -1,0 +1,83 @@
+@page "/"
+@inject NasMonitor.Web.Client.Services.DashboardApiClient ApiClient
+@implements IDisposable
+
+<PageTitle>NAS Monitor</PageTitle>
+
+<main class="page">
+    <header class="page-header">
+        <div>
+            <h1>NAS Monitor</h1>
+            @if (_snapshot is not null)
+            {
+                <p class="muted">Last refreshed @LocalTimeFormatter.Format(_snapshot.CompletedAtUtc)</p>
+            }
+        </div>
+        <button type="button" @onclick="RefreshAsync" disabled="@_loading">
+            @(_loading ? "Refreshing…" : "Refresh")
+        </button>
+    </header>
+
+    @if (_loading)
+    {
+        <p class="loading" role="status">Collecting current NAS health…</p>
+    }
+
+    @if (_pageError is not null)
+    {
+        <div class="page-error" role="alert">@_pageError</div>
+    }
+
+    @if (_snapshot is not null)
+    {
+        <div class="dashboard-grid">
+            @if (_snapshot.System is not null) { <SystemCard Result="_snapshot.System" /> }
+            @if (_snapshot.Storage is not null) { <StorageCard Result="_snapshot.Storage" ZfsResult="_snapshot.Zfs" /> }
+            @if (_snapshot.Zfs is not null) { <ZfsCard Result="_snapshot.Zfs" /> }
+            @if (_snapshot.Smart is not null) { <SmartCard Result="_snapshot.Smart" /> }
+            @if (_snapshot.Plex is not null) { <PlexCard Result="_snapshot.Plex" /> }
+            @if (_snapshot.Jellyfin is not null) { <JellyfinCard Result="_snapshot.Jellyfin" /> }
+        </div>
+    }
+</main>
+
+@code {
+    private readonly CancellationTokenSource _lifetime = new();
+    private DashboardResponse? _snapshot;
+    private string? _pageError;
+    private bool _loading;
+
+    protected override Task OnInitializedAsync() => RefreshAsync();
+
+    private async Task RefreshAsync()
+    {
+        if (_loading) return;
+        _loading = true;
+        _pageError = null;
+        try
+        {
+            _snapshot = await ApiClient.GetAsync(_lifetime.Token);
+        }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested)
+        {
+        }
+        catch (HttpRequestException)
+        {
+            _pageError = "The dashboard API could not be reached.";
+        }
+        catch (Exception)
+        {
+            _pageError = "The dashboard response could not be loaded.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _lifetime.Cancel();
+        _lifetime.Dispose();
+    }
+}

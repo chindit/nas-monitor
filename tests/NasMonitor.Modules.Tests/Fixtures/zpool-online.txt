@@ -1,0 +1,11 @@
+  pool: medias
+ state: ONLINE
+  scan: scrub repaired 0B in 00:10:00 with 0 errors
+config:
+
+        NAME          STATE     READ WRITE CKSUM
+        medias        ONLINE       0     0     0
+          raidz1-0    ONLINE       0     0     0
+            /dev/sda  ONLINE       0     0     0
+
+errors: No known data errors

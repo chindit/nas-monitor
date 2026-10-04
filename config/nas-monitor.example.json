@@ -1,0 +1,63 @@
+{
+  "AllowedHosts": "monitor.example.com;localhost;127.0.0.1",
+  "Modules": {
+    "System": {
+      "Enabled": true,
+      "TimeoutSeconds": 5,
+      "Thresholds": {
+        "CpuUsageWarningPercent": 90,
+        "CpuUsageCriticalPercent": 98,
+        "CpuTemperatureWarningCelsius": 80,
+        "CpuTemperatureCriticalCelsius": 95,
+        "MemoryUsageWarningPercent": 85,
+        "MemoryUsageCriticalPercent": 95
+      }
+    },
+    "Storage": {
+      "Enabled": true,
+      "TimeoutSeconds": 5,
+      "MountPoints": ["/"],
+      "Thresholds": { "UsageWarningPercent": 80, "UsageCriticalPercent": 90 }
+    },
+    "Zfs": {
+      "Enabled": true,
+      "TimeoutSeconds": 10,
+      "PoolName": "medias",
+      "IncludeDatasets": true,
+      "Thresholds": { "UsageWarningPercent": 80, "UsageCriticalPercent": 90 }
+    },
+    "Smart": {
+      "Enabled": true,
+      "TimeoutSeconds": 30,
+      "DiscoverAutomatically": true,
+      "WakeSleepingDisks": false,
+      "ExcludedDevicePaths": [],
+      "ExcludedSerialNumbers": [],
+      "Thresholds": {
+        "HddTemperatureWarningCelsius": 45,
+        "HddTemperatureCriticalCelsius": 55,
+        "SataSsdTemperatureWarningCelsius": 60,
+        "SataSsdTemperatureCriticalCelsius": 70,
+        "NvmeTemperatureWarningCelsius": 70,
+        "NvmeTemperatureCriticalCelsius": 80
+      }
+    },
+    "Plex": {
+      "Enabled": true,
+      "RequestTimeoutSeconds": 5,
+      "BaseUrl": "http://127.0.0.1:32400",
+      "ServiceUnit": "plexmediaserver.service",
+      "ShowSessionDetails": true
+    },
+    "Jellyfin": {
+      "Enabled": true,
+      "RequestTimeoutSeconds": 5,
+      "BaseUrl": "http://127.0.0.1:8096",
+      "ServiceUnit": "jellyfin.service",
+      "ShowSessionDetails": true
+    }
+  },
+  "Logging": {
+    "LogLevel": { "Default": "Warning", "Microsoft.AspNetCore": "Warning" }
+  }
+}

@@ -1,0 +1,37 @@
+[Unit]
+Description=NAS monitoring dashboard
+After=network-online.target zfs.target plexmediaserver.service jellyfin.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=nas-monitor
+Group=nas-monitor
+WorkingDirectory=/opt/nas-monitor/current
+ExecStart=/opt/nas-monitor/current/NasMonitor.Web
+EnvironmentFile=/etc/nas-monitor/nas-monitor.env
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=30s
+TimeoutStopSec=20s
+UMask=0077
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nas-monitor
+
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectClock=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

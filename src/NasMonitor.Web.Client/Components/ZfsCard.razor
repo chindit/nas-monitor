@@ -1,0 +1,34 @@
+@using NasMonitor.Contracts.Zfs
+
+<ModuleCard Title="ZFS pool" State="Result.State" CssClass="grid-zfs">
+    <ErrorPanel Error="Result.Error" />
+    @if (Result.Data is { } data)
+    {
+        <dl class="metrics">
+            <div><dt>Pool</dt><dd>@data.PoolName</dd></div>
+            <div><dt>Health</dt><dd>@data.Health</dd></div>
+            <div><dt>Capacity</dt><dd>@data.CapacityPercent.ToString("0.#")% · @BinarySizeFormatter.Format(data.AllocatedBytes) / @BinarySizeFormatter.Format(data.SizeBytes)</dd></div>
+            <div><dt>Scan</dt><dd>@(data.ScanSummary ?? "—")</dd></div>
+            <div><dt>Errors</dt><dd>@(data.ErrorSummary ?? "—")</dd></div>
+        </dl>
+        <div class="table-scroll"><table><thead><tr><th>Vdev</th><th>State</th><th>Read</th><th>Write</th><th>Checksum</th></tr></thead><tbody>
+            @foreach (var vdev in data.Vdevs)
+            {
+                <tr><td>@vdev.Name</td><td>@vdev.State</td><td>@vdev.ReadErrors</td><td>@vdev.WriteErrors</td><td>@vdev.ChecksumErrors</td></tr>
+            }
+        </tbody></table></div>
+        @if (data.Datasets.Count > 0)
+        {
+            <details><summary>@data.Datasets.Count dataset(s)</summary><div class="table-scroll"><table><thead><tr><th>Name</th><th>Used</th><th>Available</th><th>Mount</th></tr></thead><tbody>
+                @foreach (var dataset in data.Datasets)
+                {
+                    <tr><td>@dataset.Name</td><td>@BinarySizeFormatter.Format(dataset.UsedBytes)</td><td>@BinarySizeFormatter.Format(dataset.AvailableBytes)</td><td>@(dataset.MountPoint ?? "—")</td></tr>
+                }
+            </tbody></table></div></details>
+        }
+    }
+</ModuleCard>
+
+@code {
+    [Parameter, EditorRequired] public ModuleResult<ZfsSnapshot> Result { get; set; } = default!;
+}

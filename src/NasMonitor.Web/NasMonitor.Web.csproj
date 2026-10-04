@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>NasMonitor.Web</RootNamespace>
+    <AssemblyName>NasMonitor.Web</AssemblyName>
+    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NasMonitor.Web.Client\NasMonitor.Web.Client.csproj" />
+    <ProjectReference Include="..\NasMonitor.Contracts\NasMonitor.Contracts.csproj" />
+    <ProjectReference Include="..\NasMonitor.Core\NasMonitor.Core.csproj" />
+    <ProjectReference Include="..\NasMonitor.Modules\NasMonitor.Modules.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.12" />
+  </ItemGroup>
+
+</Project>

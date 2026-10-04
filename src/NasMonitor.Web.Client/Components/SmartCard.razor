@@ -1,0 +1,34 @@
+@using NasMonitor.Contracts.Smart
+
+<ModuleCard Title="SMART devices" State="Result.State" CssClass="grid-smart">
+    <ErrorPanel Error="Result.Error" />
+    @if (Result.Data is { } data)
+    {
+        <div class="table-scroll"><table><thead><tr><th>Device</th><th>Model</th><th>Kind</th><th>SMART</th><th>Temperature</th><th>Power-on</th><th>Media health</th></tr></thead><tbody>
+            @foreach (var device in data.Devices)
+            {
+                <tr>
+                    <td>@device.Path<br /><span class="muted">@device.SerialNumber</span></td>
+                    <td>@(device.Model ?? "—")</td>
+                    <td>@device.Kind</td>
+                    <td>@(device.IsInStandby ? "Standby" : device.SmartPassed is null ? "Unknown" : device.SmartPassed.Value ? "Passed" : "Failed")</td>
+                    <td>@(device.TemperatureCelsius is { } temperature ? $"{temperature:0.0} °C" : "—")</td>
+                    <td>@(device.PowerOnHours is { } hours ? $"{hours} h" : "—")</td>
+                    <td>@Health(device)</td>
+                </tr>
+            }
+        </tbody></table></div>
+    }
+</ModuleCard>
+
+@code {
+    [Parameter, EditorRequired] public ModuleResult<SmartSnapshot> Result { get; set; } = default!;
+
+    private static string Health(SmartDeviceSnapshot device)
+    {
+        var errors = new[] { device.ReallocatedSectorCount, device.CurrentPendingSectorCount, device.OfflineUncorrectableSectorCount, device.MediaErrors }
+            .Where(value => value > 0)
+            .Sum(value => (decimal)(value ?? 0));
+        return device.HealthMessages.Count > 0 ? string.Join(" ", device.HealthMessages) : errors > 0 ? $"{errors:0} error(s)" : "No reported errors";
+    }
+}

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore NasMonitor.slnx
+      - name: Build
+        run: dotnet build NasMonitor.slnx --configuration Release --no-restore
+      - name: Test
+        run: dotnet test NasMonitor.slnx --configuration Release --no-build
+      - name: Publish
+        shell: bash
+        run: |
+          version="1.0.${GITHUB_RUN_NUMBER}"
+          dotnet publish src/NasMonitor.Web/NasMonitor.Web.csproj --configuration Release --runtime linux-x64 --self-contained true --no-restore --output artifacts/publish/web
+          dotnet publish tools/NasMonitor.SmartCollector/NasMonitor.SmartCollector.csproj --configuration Release --runtime linux-x64 --self-contained true --no-restore -p:PublishSingleFile=true -p:PublishTrimmed=false --output artifacts/publish/tools
+          root="artifacts/package/nas-monitor-${version}"
+          mkdir -p "${root}/web" "${root}/tools" "${root}/deploy" "${root}/config"
+          cp -a artifacts/publish/web/. "${root}/web/"
+          cp artifacts/publish/tools/nas-monitor-smart-collector "${root}/tools/"
+          cp deploy/nas-monitor.service deploy/nas-monitor.sudoers "${root}/deploy/"
+          cp config/nas-monitor.example.json config/nas-monitor.env.example "${root}/config/"
+          tar -C artifacts/package -czf "artifacts/nas-monitor-${version}.tar.gz" "nas-monitor-${version}"
+          sha256sum "artifacts/nas-monitor-${version}.tar.gz" > "artifacts/nas-monitor-${version}.tar.gz.sha256"
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nas-monitor-linux-x64
+          path: |
+            artifacts/*.tar.gz
+            artifacts/*.sha256
+          if-no-files-found: error

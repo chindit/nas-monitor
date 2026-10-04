@@ -1,0 +1,8 @@
+[
+  {
+    "Id": "session-redacted",
+    "UserName": "REDACTED",
+    "NowPlayingItem": { "Name": "REDACTED", "Type": "Movie", "RunTimeTicks": 600000000 },
+    "PlayState": { "PositionTicks": 300000000, "IsPaused": false, "PlayMethod": "DirectPlay" }
+  }
+]

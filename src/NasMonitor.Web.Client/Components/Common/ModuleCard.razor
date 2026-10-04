@@ -1,0 +1,19 @@
+<section class="module-card @CssClass" aria-labelledby="@HeadingId">
+    <header class="card-header">
+        <h2 id="@HeadingId">@Title</h2>
+        @if (State is { } state)
+        {
+            <StateBadge State="state" />
+        }
+    </header>
+    @ChildContent
+</section>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public ModuleState? State { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string HeadingId => $"module-{Title.ToLowerInvariant().Replace(' ', '-')}";
+}

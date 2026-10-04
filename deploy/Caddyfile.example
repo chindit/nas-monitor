@@ -1,0 +1,16 @@
+monitor.example.com {
+    encode zstd gzip
+
+    basic_auth argon2id {
+        admin REPLACE_WITH_ARGON2ID_HASH
+    }
+
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+
+    reverse_proxy 127.0.0.1:5180
+}

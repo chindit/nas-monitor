@@ -1,0 +1,3 @@
+@using NasMonitor.Contracts.Media
+<MediaCard Title="Jellyfin" CssClass="grid-jellyfin" Result="Result" />
+@code { [Parameter, EditorRequired] public ModuleResult<MediaServerSnapshot> Result { get; set; } = default!; }
